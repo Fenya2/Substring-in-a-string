@@ -1,12 +1,3 @@
-function getListIdx(str, substr) {
-    let listIdx = []
-    let lastIndex = -1
-    while ((lastIndex = str.indexOf(substr, lastIndex + 1)) !== -1) {
-        listIdx.push(lastIndex)
-    }
-    return listIdx
-} // for tests
-
 String.prototype.getHash = function (mode) {
     let hashSum = 0;
     switch (mode) {
@@ -30,10 +21,8 @@ String.prototype.getHash = function (mode) {
 }
 
 String.prototype.findSubstrUsingBruteForce = function (substr) {
-    if(substr === "") return null;
-    //substr = String(substr);
+    if(substr === "") return [];
     let matches = [];
-
     for(let i = 0; i < this.length-substr.length+1; i++) {
         let match = true;
         for(let j = 0; j < substr.length; j++) {
@@ -44,31 +33,8 @@ String.prototype.findSubstrUsingBruteForce = function (substr) {
         }
         if (match) matches.push(i);
     }
-    /*if(matches.length > 0)*/ return matches;
-    //else return null;
+    return matches;
 };
-
-
-function cmpChar(str,i,substr,array){
-    let f = true
-    let t = str.slice(i, i + substr.length)
-    for (let j = 0; j < substr.length; j++) {
-        if (substr[j] !== t[j]) {
-            f = false
-            break
-        }
-    }
-    if (f) array.push(i)
-}
-
-String.prototype.BruteForce = function(substr) {
-    if (substr==="") return null
-    let indexBF = []
-    for (let i = 0; i < this.length - substr.length+1; i++) {
-        cmpChar(this,i,substr,indexBF)
-    }
-    return indexBF
-}
 
 String.prototype.findSubstrUsingHash = function (substr, way) {
 // "ways" arg watch in "ФУНДАМЕНТАЛЬНЫЕ ЗАДАЧИ ИНФОРМАТИКИ. СКРИПТЫ" by СОЛОДУШКИН Святослав Игоревич (page 36).
@@ -77,27 +43,7 @@ String.prototype.findSubstrUsingHash = function (substr, way) {
     let matches = [];
     let substrHash = 0;
     switch (way) {
-        case 1: { // recount hash for each fragment of this.
-            substrHash = substr.getHash("sum")
-            for (let i = 0; i < this.length - substr.length + 1; i++) {
-                let fragmentHash = 0;
-                for (let j = 0; j < substr.length; j++)
-                    fragmentHash += this.charCodeAt(i + j);
-                if (fragmentHash === substrHash) {
-                    let match = true;
-                    for (let j = 0; j < substr.length; j++) {
-                        if (this[i + j] !== substr[j]) {
-                            match = false;
-                            break;
-                        }
-                    }
-                    if (match) matches.push(i);
-                }
-            }
-            if (matches.length > 0) return matches;
-            else return null;
-        }
-        case 2: {// count first fragment hash and then next, using previous.
+        case 'sum': {// count first fragment hash and then next, using previous.
             substrHash = substr.getHash("sum")
             let fragmentHash = 0;
             for (let i = 0; i < substr.length; i++)
@@ -125,10 +71,9 @@ String.prototype.findSubstrUsingHash = function (substr, way) {
                     if (match) matches.push(i);
                 }
             }
-            if (matches.length > 0) return matches;
-            else return null;
+            return matches;
         }
-        case 3: {
+        case 'sqr_sum': {
             substrHash = substr.getHash("sqrSum");
             let fragmentHash = 0;
             for (let i = 0; i < substr.length; i++)
@@ -156,10 +101,9 @@ String.prototype.findSubstrUsingHash = function (substr, way) {
                     if (match) matches.push(i);
                 }
             }
-            if (matches.length > 0) return matches;
-            else return null;
+            return matches;
         }
-        case 4: { // rabin-karp
+        case 'rabin-karp': { // rabin-karp
             substrHash = substr.getHash("Rabin–Karp algorithm");
             let fragmentHash = 0;
             for (let i = 0; i < substr.length; i++)
@@ -187,47 +131,107 @@ String.prototype.findSubstrUsingHash = function (substr, way) {
                     if (match) matches.push(i);
                 }
             }
-            if (matches.length > 0) return matches;
-            else return null;
+            return matches;
         }
     }
-    return null;
+    try
+    {
+        throw new TypeError("Can't find way for searching");
+    }
+    catch (e)
+    {
+        console.log(e.message);
+        return null;
+    }
 }
 
+function cool_func(str, substr) {
+    let listIdx = []
+    let lastIndex = -1
+    while ((lastIndex = str.indexOf(substr, lastIndex + 1)) !== -1) {
+        listIdx.push(lastIndex)
+    }
+    return listIdx
+} // for tests
+console.log("------------------------------TEST 1------------------------------");
+console.log("Test 1. Ищем строку 'князь Андрей' в романе Л.Н.Толстого 'Война и мир', используя алгоритм поиска brute force.");
 
-// let str = "ABCDEFG";
-// let substr = "ABCDEFG";
+let fs = require('fs');
+let str = '';
 
-fs = require('fs');
-let str = fs.readFileSync("./testFiles/1000000a.txt").toString();
-substr = "a".repeat(100);
+str += fs.readFileSync("./testFiles/war and peace(1 tome).txt").toString();
+console.time("1 том");
+console.log("Количество вхождений 'князь Андрей': ", str.findSubstrUsingBruteForce("князь Андрей").length);
+console.timeEnd("1 том");
+
+str += fs.readFileSync("./testFiles/war and peace(2 tome).txt").toString();
+console.time("2 тома");
+console.log("Количество вхождений 'князь Андрей': ", str.findSubstrUsingBruteForce("князь Андрей").length);
+console.timeEnd("2 тома");
+
+str += fs.readFileSync("./testFiles/war and peace(3 tome).txt").toString();
+console.time("3 тома");
+console.log("Количество вхождений 'князь Андрей': ", str.findSubstrUsingBruteForce("князь Андрей").length);
+console.timeEnd("3 тома");
+
+str += fs.readFileSync("./testFiles/war and peace(4 tome).txt").toString();
+console.time("4 тома");
+console.log("Количество вхождений 'князь Андрей': ", str.findSubstrUsingBruteForce("князь Андрей").length);
+console.timeEnd("4 тома");
+
+console.log("------------------------------TEST 2------------------------------");
+console.log("Test 2. Во всем тексте романа ищем строки 'князь','князь Андрей','Князь Андрей Болконский'. ");
+
+console.time("князь");
+console.log("Количество вхождений 'князь': ", str.findSubstrUsingBruteForce("князь").length);
+console.timeEnd("князь");
+
+console.time("князь Андрей");
+console.log("Количество вхождений 'князь Андрей': ", str.findSubstrUsingBruteForce("князь Андрей").length);
+console.timeEnd("князь Андрей");
+
+console.time("князь Андрей Болконский");
+console.log("Количество вхождений 'князь Андрей Болконский': ", str.findSubstrUsingBruteForce("князь Андрей Болконский").length);
+console.timeEnd("князь Андрей Болконский");
+console.log("------------------------------TEST 3------------------------------");
+
+console.log("В файле с миллионом 'a' ищем строку 'a{100}b' и 'ba{100}'");
+str = fs.readFileSync("./testFiles/1000000a.txt").toString();
+let substr = "a".repeat(100) + "b";
+console.log("1) 'a{100}b'");
+console.time("brute force");
+console.log("Количество вхождений: ", str.findSubstrUsingBruteForce(substr).length);
+console.timeEnd("brute force");
+
+console.time("hash sum");
+console.log("Количество вхождений: ", str.findSubstrUsingHash(substr, 'sum').length);
+console.timeEnd("hash sum");
+
+console.time("sqr hash sum");
+console.log("Количество вхождений: ", str.findSubstrUsingHash(substr, 'sqr_sum').length);
+console.timeEnd("sqr hash sum");
+
+console.time("rabin-karp");
+console.log("Количество вхождений: ", str.findSubstrUsingHash(substr, 'rabin-karp').length);
+console.timeEnd("rabin-karp");
 
 
-// //WAR AND PEACE...
-// fs = require('fs');
-// let str = "";
-// str += fs.readFileSync("./testFiles/war and peace(1 tome).txt").toString();
-// str += fs.readFileSync("./testFiles/war and peace(2 tome).txt").toString();
-// str += fs.readFileSync("./testFiles/war and peace(3 tome).txt").toString();
-// str += fs.readFileSync("./testFiles/war and peace(4 tome).txt").toString();
-// let substr = "князь Андрей"
+console.log("2) 'ba{100}'");
+substr = "b" + "a".repeat(100);
+console.time("brute force");
+console.log("Количество вхождений: ", str.findSubstrUsingBruteForce(substr).length);
+console.timeEnd("brute force");
 
-console.time("sqr");
-str.findSubstrUsingHash(substr, 3);
-console.timeEnd("sqr");
+console.time("hash sum");
+console.log("Количество вхождений: ", str.findSubstrUsingHash(substr, 'sum').length);
+console.timeEnd("hash sum");
 
-console.time("sum");
-str.findSubstrUsingHash(substr, 2);
-console.timeEnd("sum");
+console.time("sqr hash sum");
+console.log("Количество вхождений: ", str.findSubstrUsingHash(substr, 'sqr_sum').length);
+console.timeEnd("sqr hash sum");
 
-console.time("sum(not rec)");
-str.findSubstrUsingHash(substr, 1);
-console.timeEnd("sum(not rec)");
+console.time("rabin-karp");
+console.log("Количество вхождений: ", str.findSubstrUsingHash(substr, 'rabin-karp').length);
+console.timeEnd("rabin-karp");
 
-console.time("bf");
-str.findSubstrUsingBruteForce(substr);
-console.timeEnd("bf");
-
-console.time("rk");
-str.findSubstrUsingHash(substr, 4);
-console.timeEnd("rk");
+console.log("-------------------------------END--------------------------------");
